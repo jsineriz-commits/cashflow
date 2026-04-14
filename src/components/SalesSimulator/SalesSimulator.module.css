@@ -1,0 +1,136 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+}
+
+.description {
+  color: var(--secondary-foreground);
+  margin-top: 0.25rem;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--secondary-foreground);
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: transparent;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.submitButton {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.chartCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-foreground);
+  font-size: 0.95rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.badge {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.badgeRemove {
+  cursor: pointer;
+  color: var(--danger);
+}

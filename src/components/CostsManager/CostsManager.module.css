@@ -1,0 +1,189 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.addButton:hover {
+  opacity: 0.9;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.costCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.costCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.costName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.costType {
+  font-size: 0.75rem;
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-xl);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.costAmount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--danger);
+  margin-top: 0.5rem;
+}
+
+.costFrequency {
+  font-size: 0.85rem;
+  color: var(--secondary-foreground);
+}
+
+.deleteButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--secondary-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.costCard:hover .deleteButton {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  color: var(--danger);
+}
+
+/* Modal styles - same as before */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-family: var(--font-heading);
+}
+
+.closeButton {
+  color: var(--secondary-foreground);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--secondary-foreground);
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.submitButton {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: var(--accent);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.submitButton:hover {
+  opacity: 0.9;
+}

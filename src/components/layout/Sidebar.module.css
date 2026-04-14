@@ -1,0 +1,109 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: var(--card-bg);
+  border-right: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 2rem 1rem;
+}
+
+.logoIcon {
+  color: var(--primary);
+}
+
+.logoText {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--secondary-foreground);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: var(--secondary);
+  color: var(--foreground);
+}
+
+.navItemActive {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.navItemActive:hover {
+  background-color: var(--primary-hover);
+  color: var(--primary-foreground);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.footer {
+  margin-top: auto;
+  paddingTop: 1rem;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.userRole {
+  font-size: 0.75rem;
+  color: var(--secondary-foreground);
+}

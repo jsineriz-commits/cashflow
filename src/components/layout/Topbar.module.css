@@ -1,0 +1,49 @@
+.topbar {
+  height: 70px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+@media (prefers-color-scheme: dark) {
+  .topbar {
+    background-color: rgba(24, 24, 27, 0.8);
+  }
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-foreground);
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  background-color: var(--secondary);
+  color: var(--foreground);
+}
