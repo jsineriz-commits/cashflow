@@ -2,6 +2,7 @@
 import { useCashflow } from '@/context/CashflowContext';
 import { Package, Receipt, TrendingUp, LineChart } from 'lucide-react';
 import Link from 'next/link';
+import EconomicIndicators from '@/components/EconomicIndicators/EconomicIndicators';
 
 export default function DashboardPage() {
   const { products, costs, simulations } = useCashflow();
@@ -15,10 +16,12 @@ export default function DashboardPage() {
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div>
         <h2 style={{ fontSize: '1.75rem', fontFamily: 'var(--font-heading)' }}>Bienvenido, Mi PYME S.A.</h2>
-        <p style={{ color: 'var(--secondary-foreground)', marginTop: '0.25rem' }}>
+        <p style={{ color: 'var(--secondary-foreground)', marginTop: '0.25rem', marginBottom: '2rem' }}>
           Este es tu panel de control principal para gestionar la liquidez de tu negocio.
         </p>
       </div>
+
+      <EconomicIndicators />
 
       <div style={{
         display: 'grid',
