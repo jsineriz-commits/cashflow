@@ -15,8 +15,9 @@ const menuItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/productos', icon: Package, label: 'Catálogo y Precios' },
   { href: '/costos', icon: Receipt, label: 'Costos y Egresos' },
-  { href: '/simulador', icon: TrendingUp, label: 'Simulador de Ventas' },
-  { href: '/proyecciones', icon: LineChart, label: 'Proyecciones y Escenarios' },
+  { href: '/historico', icon: TrendingUp, label: 'Datos Históricos' },
+  { href: '/simulador', icon: TrendingUp, label: 'Simulador (Corto Plazo)' },
+  { href: '/proyecciones', icon: LineChart, label: 'Proyecciones (Largo Plazo)' },
 ];
 
 export default function Sidebar() {

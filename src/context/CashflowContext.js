@@ -18,12 +18,23 @@ const initialSimulations = [
   { productId: '2', month: '2024-01', volume: 50 },
 ];
 
+// New: historical base to start projection from
+const initialHistoricalSales = [
+  { id: 'h1', productId: '2', period: '2023 Mensual Promedio', volume: 45 },
+  { id: 'h2', productId: '1', period: '2023 Mensual Promedio', volume: 3 },
+];
+
 export function CashflowProvider({ children }) {
   const [products, setProducts] = useState(initialProducts);
   const [costs, setCosts] = useState(initialCosts);
   const [simulations, setSimulations] = useState(initialSimulations);
+  const [historicalSales, setHistoricalSales] = useState(initialHistoricalSales);
 
-  // Here we'd load/save from localStorage, but keeping it memory-only for fast dev initially
+  const [macroVariables, setMacroVariables] = useState({
+    growthRate: 15,    // % annual growth
+    horizon: 5,        // years (1, 3, 5, 10)
+    inflation: 0       // If 0, working in Real/Hard Currency
+  });
   
   const addProduct = (product) => {
     setProducts(prev => [...prev, { ...product, id: Date.now().toString() }]);
@@ -41,10 +52,20 @@ export function CashflowProvider({ children }) {
     setCosts(prev => prev.filter(c => c.id !== id));
   };
 
+  const addHistorical = (hist) => {
+    setHistoricalSales(prev => [...prev, { ...hist, id: Date.now().toString() }]);
+  };
+
+  const removeHistorical = (id) => {
+    setHistoricalSales(prev => prev.filter(h => h.id !== id));
+  };
+
   const value = {
     products, addProduct, removeProduct,
     costs, addCost, removeCost,
-    simulations, setSimulations
+    simulations, setSimulations,
+    historicalSales, addHistorical, removeHistorical,
+    macroVariables, setMacroVariables
   };
 
   return (
