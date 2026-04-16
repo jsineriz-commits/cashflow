@@ -277,36 +277,38 @@ export default function FinancialEngine() {
 
       <div className={styles.panels}>
         <div className={styles.mainContent}>
-          <div className={styles.kpiGrid}>
-            <div className={styles.kpiCard}><span className={styles.kpiTitle}>Rentabilidad Neta (VAN)</span><span className={`${styles.kpiValue} ${eMetrics.van >= 0 ? styles.positive : styles.negative}`}>{fCurrency(eMetrics.van)}</span></div>
-            <div className={styles.kpiCard}><span className={styles.kpiTitle}>Tasa Int. de Retorno (TIR)</span><span className={`${styles.kpiValue} ${eMetrics.tir >= macroInput.tasaDescuento ? styles.positive : styles.negative}`}>{eMetrics.tir !== null ? eMetrics.tir.toFixed(2) : '-'} %</span></div>
-            <div className={styles.kpiCard}><span className={styles.kpiTitle}>Recupero de Inversión</span><span className={styles.kpiValue} style={{color:'var(--foreground)'}}>{eMetrics.payback !== null ? eMetrics.payback.toFixed(1) + ' Años' : 'N/A'}</span></div>
-          </div>
+          <div className={styles.dashboardTop}>
+            <div className={styles.kpiColumn}>
+              <div className={styles.kpiCard}><span className={styles.kpiTitle}>Rentabilidad Neta (VAN)</span><span className={`${styles.kpiValue} ${eMetrics.van >= 0 ? styles.positive : styles.negative}`}>{fCurrency(eMetrics.van)}</span></div>
+              <div className={styles.kpiCard}><span className={styles.kpiTitle}>Tasa Int. de Retorno (TIR)</span><span className={`${styles.kpiValue} ${eMetrics.tir >= macroInput.tasaDescuento ? styles.positive : styles.negative}`}>{eMetrics.tir !== null ? eMetrics.tir.toFixed(2) : '-'} %</span></div>
+              <div className={styles.kpiCard}><span className={styles.kpiTitle}>Recupero Inversión</span><span className={styles.kpiValue} style={{color:'var(--foreground)'}}>{eMetrics.payback !== null ? eMetrics.payback.toFixed(1) + ' Años' : 'N/A'}</span></div>
+            </div>
 
-          <div className={styles.chartCard} style={{ height: '300px' }}>
-             <svg width="0" height="0">
-                <defs>
-                  <linearGradient id="colorFcl" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.1}/>
-                  </linearGradient>
-                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="8" stdDeviation="5" floodColor="rgba(0,0,0,0.15)"/>
-                  </filter>
-                </defs>
-             </svg>
-             <h3 style={{fontSize:'1rem', margin:'0 0 10px 0'}}>Proyección de Beneficios (Acumulado Anual)</h3>
-             <ResponsiveContainer width="100%" height="100%">
-               <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                 <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} opacity={0.6} />
-                 <XAxis dataKey="label" stroke="var(--secondary-foreground)" fontSize={11} tickMargin={10} axisLine={false} tickLine={false} />
-                 <YAxis stroke="var(--secondary-foreground)" tickFormatter={(v) => `$${v/1000}k`} fontSize={11} width={50} axisLine={false} tickLine={false} />
-                 <Tooltip formatter={fCurrency} contentStyle={{ backgroundColor: 'rgba(15,23,42,0.85)', borderRadius: '12px', borderColor: 'var(--primary)', color: 'white', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }} itemStyle={{ color: 'white' }} />
-                 <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                 <Area type="monotone" dataKey="FlujoCajaLibre" stroke="var(--primary)" fillOpacity={1} fill="url(#colorFcl)" name="Cashflow Libre Anual" strokeWidth={3} filter="url(#shadow)" />
-                 <Line type="monotone" dataKey="CostosEstructura" stroke="#ef4444" name="Estructuras Fijas" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-               </ComposedChart>
-             </ResponsiveContainer>
+            <div className={styles.chartCard} style={{ height: '300px' }}>
+               <svg width="0" height="0">
+                  <defs>
+                    <linearGradient id="colorFcl" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="8" stdDeviation="5" floodColor="rgba(0,0,0,0.15)"/>
+                    </filter>
+                  </defs>
+               </svg>
+               <h3 style={{fontSize:'1rem', margin:'0 0 10px 0'}}>Proyección de Beneficios (Acumulado Anual)</h3>
+               <ResponsiveContainer width="100%" height="100%">
+                 <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                   <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} opacity={0.6} />
+                   <XAxis dataKey="label" stroke="var(--secondary-foreground)" fontSize={11} tickMargin={10} axisLine={false} tickLine={false} />
+                   <YAxis stroke="var(--secondary-foreground)" tickFormatter={(v) => `$${v/1000}k`} fontSize={11} width={50} axisLine={false} tickLine={false} />
+                   <Tooltip formatter={fCurrency} contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '12px', borderColor: 'var(--card-border)', color: 'var(--foreground)', backdropFilter: 'blur(20px)', border: '1px solid var(--card-border)', boxShadow: 'var(--shadow-md)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                   <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                   <Area type="monotone" dataKey="FlujoCajaLibre" stroke="var(--primary)" fillOpacity={1} fill="url(#colorFcl)" name="Cashflow Libre Anual" strokeWidth={3} filter="url(#shadow)" />
+                   <Line type="monotone" dataKey="CostosEstructura" stroke="#ff3b30" name="Estructuras Fijas" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+                 </ComposedChart>
+               </ResponsiveContainer>
+            </div>
           </div>
           
           <div style={{display:'flex', gap:'5px', marginBottom:'-0.5rem'}}>

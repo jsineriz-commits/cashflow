@@ -6,7 +6,7 @@ export const industryTemplates = [
     defaults: { primaryVolume: 3500, primaryGrowth: 15, churn: 0, ticket: 15000, cogs: 4500, fixed: 8000000, capex: 50000000 }
   },
   {
-    category: "Gastronomía", id: "restaurante_gourmet", name: "Restaurante Gourmet (50 cubiertos)", engineType: "volume",
+    category: "Gastronomía", id: "restaurante_gourmet", name: "Restaurante Gourmet", engineType: "volume",
     labels: { primaryVolume: "Cubiertos/Comensales al Mes", primaryGrowth: "Aumento Tráfico Comercial (%)", ticket: "Ticket Promedio x Comensal ($)", cogs: "Costo Comida/Bebida x Plato", fixed: "Brigada, Mozos y Alquiler Rte.", capex: "Llave del Local, Cocina y Mobiliario" },
     defaults: { primaryVolume: 2500, primaryGrowth: 5, churn: 0, ticket: 35000, cogs: 10000, fixed: 15000000, capex: 120000000 }
   },
@@ -70,7 +70,7 @@ export const industryTemplates = [
   
   // --- HOTELERIA Y TURISMO ---
   {
-    category: "Hotelería y Turismo", id: "hotel_boutique", name: "Hotel Boutique (20 Habitaciones)", engineType: "volume",
+    category: "Hotelería y Turismo", id: "hotel_boutique", name: "Hotel Boutique", engineType: "volume",
     labels: { primaryVolume: "Noches Ocupadas / Mes", primaryGrowth: "Crec. Demanda Turística (%)", ticket: "ADR - Tarifa Promedio x Noche($)", cogs: "Costo Diario Limpieza/Desayuno", fixed: "Personal 24hs, Servicios, Manten.", capex: "Inversión Construcción/Remodelación" },
     defaults: { primaryVolume: 420, primaryGrowth: 3, churn: 0, ticket: 150000, cogs: 18000, fixed: 18000000, capex: 800000000 }
   },
@@ -80,12 +80,12 @@ export const industryTemplates = [
     defaults: { primaryVolume: 50, primaryGrowth: 10, churn: 0, ticket: 1200000, cogs: 950000, fixed: 8000000, capex: 12000000 }
   },
   {
-    category: "Hotelería y Turismo", id: "glamping_ecologico", name: "Eco-Glamping (10 Domos Turf)", engineType: "volume",
+    category: "Hotelería y Turismo", id: "glamping_ecologico", name: "Eco-Glamping (Turismo Domos)", engineType: "volume",
     labels: { primaryVolume: "Noches Domo Vendidas", primaryGrowth: "Aumento Turismo (%)", ticket: "Tarifa Premium Glamping", cogs: "Costo Amenidades/Viandas", fixed: "Mantenimiento Parque y Staff", capex: "Instalación Domos y Terreno" },
     defaults: { primaryVolume: 150, primaryGrowth: 15, churn: 0, ticket: 180000, cogs: 20000, fixed: 6000000, capex: 150000000 }
   },
   {
-    category: "Hotelería y Turismo", id: "hostel_mochileros", name: "Hostel Mochileros (50 Camas)", engineType: "volume",
+    category: "Hotelería y Turismo", id: "hostel_mochileros", name: "Hostel Backpackers", engineType: "volume",
     labels: { primaryVolume: "Camas Literas Ocupadas Mensuales", primaryGrowth: "Crecimiento Backpackers", ticket: "Precio Cama + Desayuno", cogs: "Costo Fijo Sábanas y Limpieza", fixed: "Alquiler Casona y Conserjes", capex: "Reformas, Camas y Lockers" },
     defaults: { primaryVolume: 1100, primaryGrowth: 2, churn: 0, ticket: 18000, cogs: 3000, fixed: 5000000, capex: 40000000 }
   },
@@ -217,7 +217,7 @@ export const industryTemplates = [
     defaults: { primaryVolume: 350, primaryGrowth: 20, churn: 0, ticket: 80000, cogs: 35000, fixed: 3000000, capex: 10000000 }
   },
   {
-    category: "Entretenimiento", id: "cancha_padel_futbol", name: "Complejo de Pádel / Fútbol (8 Canchas)", engineType: "volume",
+    category: "Entretenimiento", id: "cancha_padel_futbol", name: "Complejo de Pádel / Fútbol", engineType: "volume",
     labels: { primaryVolume: "Turnos Alquilados al Mes", primaryGrowth: "Aumento Tráfico Horas (%)", ticket: "Precio x Turno (1.5 hs)", cogs: "Limpieza Canchas y Luces", fixed: "Administración Complejo", capex: "Armado de 8 canchas Blindex" },
     defaults: { primaryVolume: 1200, primaryGrowth: 3, churn: 0, ticket: 28000, cogs: 1500, fixed: 4000000, capex: 120000000 }
   },
