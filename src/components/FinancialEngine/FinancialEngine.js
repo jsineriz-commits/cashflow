@@ -1,103 +1,170 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { calculateNPV, calculateIRR, calculatePayback } from '@/lib/financialMath';
-import { Settings, Briefcase, Activity, DollarSign } from 'lucide-react';
+import { Briefcase, Activity } from 'lucide-react';
 import styles from './FinancialEngine.module.css';
 
 export default function FinancialEngine() {
   const [modelType, setModelType] = useState('masivo');
   const [horizon, setHorizon] = useState(5); // en años
   
-  // Inputs del modelo de negocio
+  // Inputs lógicos globales
   const [inputs, setInputs] = useState({
-    ventasIniciales: 50000,
+    ventasIniciales: 50000, // Por periodo (Mes o Año 1 base)
     crecimientoAnualVentas: 15,
     margenBrutoOriginal: 40, // %
-    costosEstructuraMensual: 10000,
+    costosEstructuraMes: 10000,
     inversionInicial: 200000,
-    tasaDescuento: 12, // WACC %
-    tipoCambioBase: 1, // Si es USD=1, si es otra divisa > 1
-    inflacion: 0 // Si se proyecta en divisa dura, 0.
+    tasaDescuento: 12,
+    inflacion: 0
   });
+
+  // State para el Spreadsheet (Celdas editadas manualmente)
+  // Formato: { "Ventas_14": 9999, "CostosEstructura_5": 12000 } (La key es Campo_Periodo)
+  const [overrides, setOverrides] = useState({});
 
   const handleInputChange = (field, value) => {
     setInputs(prev => ({ ...prev, [field]: parseFloat(value) || 0 }));
+    setOverrides({}); // Reset overrides if base architecture changes
   };
 
-  // Preset de modelos
   const applyPreset = (type) => {
     setModelType(type);
+    setOverrides({});
     if (type === 'masivo') {
-      setInputs(i => ({...i, margenBrutoOriginal: 30, ventasIniciales: 100000, costosEstructuraMensual: 15000}));
+      setInputs(i => ({...i, margenBrutoOriginal: 30, ventasIniciales: 100000, costosEstructuraMes: 15000}));
     } else if (type === 'boutique') {
-      setInputs(i => ({...i, margenBrutoOriginal: 70, ventasIniciales: 20000, costosEstructuraMensual: 5000}));
+      setInputs(i => ({...i, margenBrutoOriginal: 70, ventasIniciales: 20000, costosEstructuraMes: 5000}));
     } else if (type === 'servicios') {
-      setInputs(i => ({...i, margenBrutoOriginal: 90, ventasIniciales: 40000, costosEstructuraMensual: 20000}));
+      setInputs(i => ({...i, margenBrutoOriginal: 90, ventasIniciales: 40000, costosEstructuraMes: 20000}));
     }
   };
 
-  // Motor Principal (Calcula mes a mes y consolida anual si horizonte > 2)
+  // Logica de partición: <=5 años = Mensual / >5 años = Anual (por legibilidad UX)
+  const isMonthly = horizon <= 5;
+  const numPeriods = isMonthly ? (horizon * 12) : horizon;
+  const periodLabel = isMonthly ? 'Mes' : 'Año';
+
+  // Helper para leer un valor de celda. Si el usuario lo sobreescribió, lo devuelve, si no, ejecuta el Default.
+  const getValue = (field, periodIndex, defaultMathValue) => {
+    const key = `${field}_${periodIndex}`;
+    return overrides[key] !== undefined ? overrides[key] : defaultMathValue;
+  };
+
+  const handleCellEdit = (field, periodIndex, valStr) => {
+    const val = parseFloat(valStr);
+    const key = `${field}_${periodIndex}`;
+    setOverrides(prev => {
+      const next = { ...prev };
+      if (isNaN(val)) delete next[key]; // Si vacía vuelve a la formula matemática
+      else next[key] = val;
+      return next;
+    });
+  };
+
+  // Motor Generador del Spreadsheet Data
   const projData = useMemo(() => {
     const data = [];
-    const { ventasIniciales, crecimientoAnualVentas, margenBrutoOriginal, costosEstructuraMensual, inflacion, inversionInicial } = inputs;
+    const { ventasIniciales, crecimientoAnualVentas, margenBrutoOriginal, costosEstructuraMes, inflacion, inversionInicial } = inputs;
     
-    // Año 0 (Setup)
+    // Tasas de crecimiento (Adaptadas a Mensual vs Anual)
+    const gAnnual = 1 + (crecimientoAnualVentas / 100);
+    const infAnnual = 1 + (inflacion / 100);
+    const gPeriod = isMonthly ? Math.pow(gAnnual, 1/12) : gAnnual;
+    const infPeriod = isMonthly ? Math.pow(infAnnual, 1/12) : infAnnual;
+
+    // AÑO/MES 0 (Setup M0)
+    let capexM0 = overrides[`Capex_0`] !== undefined ? overrides[`Capex_0`] : inversionInicial;
     data.push({
-      año: 0,
+      periodoNumber: 0,
+      label: `M-0`,
       Ingresos: 0,
       CostosDirectos: 0,
       MargenBruto: 0,
       CostosEstructura: 0,
-      Capex: -inversionInicial,
-      FlujoCajaLibre: -inversionInicial
+      Capex: capexM0,
+      FlujoCajaLibre: -capexM0
     });
 
-    let ventasP12M = ventasIniciales * 12; 
-    let estructuraP12M = costosEstructuraMensual * 12;
-    
-    // Convert growth and inflation to decimals
-    const g = 1 + (crecimientoAnualVentas / 100);
-    const inf = 1 + (inflacion / 100);
-    
-    for (let yr = 1; yr <= horizon; yr++) {
-      // Aplicar crecimiento y luego inflación
-      const ingresos = ventasP12M * Math.pow(g, yr - 1) * Math.pow(inf, yr - 1);
-      const costosDirectos = ingresos * (1 - (margenBrutoOriginal / 100)); // El margen (%) se mantiene
-      const margenBruto = ingresos - costosDirectos;
-      
-      const costosEstruc = estructuraP12M * Math.pow(inf, yr - 1);
-      const fcl = margenBruto - costosEstruc; 
+    // P1 Base
+    let baseVentas = isMonthly ? ventasIniciales : (ventasIniciales * 12);
+    let baseEstruct = isMonthly ? costosEstructuraMes : (costosEstructuraMes * 12);
+
+    for (let t = 1; t <= numPeriods; t++) {
+      // 1. Matemáticas Default (Predicciones)
+      const mathIngresos = baseVentas * Math.pow(gPeriod, t - 1) * Math.pow(infPeriod, t - 1);
+      const mathCostosDirectos = mathIngresos * (1 - (margenBrutoOriginal / 100));
+      const mathCostosEstruc = baseEstruct * Math.pow(infPeriod, t - 1);
+      const mathCapex = 0;
+
+      // 2. Aplicar Sobrescrituras (Overrides)
+      const Ingresos = getValue('Ingresos', t, mathIngresos);
+      const CostosDirectos = getValue('CostosDirectos', t, mathCostosDirectos);
+      const CostosEstructura = getValue('CostosEstructura', t, mathCostosEstruc);
+      const Capex = getValue('Capex', t, mathCapex);
+
+      // 3. Cascada (Fórmulas no editables)
+      const MargenBruto = Ingresos - CostosDirectos;
+      const FlujoCajaLibre = MargenBruto - CostosEstructura - Capex;
       
       data.push({
-        año: yr,
-        Ingresos: ingresos,
-        CostosDirectos: -costosDirectos, // Negativo para tabla
-        MargenBruto: margenBruto,
-        CostosEstructura: -costosEstruc, // Negativo para tabla
-        Capex: 0,
-        FlujoCajaLibre: fcl
+        periodoNumber: t,
+        label: `${periodLabel} ${t}`,
+        Ingresos,
+        CostosDirectos,
+        MargenBruto,
+        CostosEstructura,
+        Capex,
+        FlujoCajaLibre
       });
     }
-
     return data;
-  }, [inputs, horizon]);
+  }, [inputs, horizon, overrides, isMonthly, numPeriods, periodLabel]);
 
-  // Cálculos de Evaluación Financiera (sobre FCL)
+  // Finanzas: VAN, TIR, Payback
   const eMetrics = useMemo(() => {
-    // Array simple del FCL para las fórnulas: [ -Inversion, Año1, Año2 ... ]
     const cashFlows = projData.map(d => d.FlujoCajaLibre);
-    const initialInv = -cashFlows[0]; // CapEx del año 0 (positivo para la formula)
+    
+    // El VAN/TIR asumen flujos periodicos. 
+    // Si la data es mensual, la tasa ingresada es Anual, hay que transformarla a tasa mensual.
+    const rateAnnualDecimal = inputs.tasaDescuento / 100;
+    const ratePeriod = isMonthly ? (Math.pow(1 + rateAnnualDecimal, 1/12) - 1) : rateAnnualDecimal;
+    
+    // Inversion T0 ya es el FCL[0]
+    const initialInv = -cashFlows[0]; 
     const futureFlows = cashFlows.slice(1);
     
-    const rateDecimal = inputs.tasaDescuento / 100;
+    const van = calculateNPV(ratePeriod, initialInv, futureFlows);
+    let tir = calculateIRR(initialInv, futureFlows);
+    // Si la data es mensual, la TIR hallada es mensual, la anualizo:
+    if (tir !== null && isMonthly) {
+      tir = Math.pow(1 + tir, 12) - 1;
+    }
     
-    const van = calculateNPV(rateDecimal, initialInv, futureFlows);
-    const tir = calculateIRR(initialInv, futureFlows);
-    const payback = calculatePayback(initialInv, futureFlows);
+    let payback = calculatePayback(initialInv, futureFlows);
+    if (payback && isMonthly) payback = payback / 12; // Payback siempre lo mostramos en Años
 
     return { van, tir: tir ? tir * 100 : null, payback };
-  }, [projData, inputs.tasaDescuento]);
+  }, [projData, inputs.tasaDescuento, isMonthly]);
+
+  // Helper para rendering celda editable
+  const EditableCell = ({ field, d }) => {
+    const t = d.periodoNumber;
+    const key = `${field}_${t}`;
+    const isOverride = overrides[key] !== undefined;
+    const value = isOverride ? overrides[key] : d[field];
+
+    return (
+      <input 
+        type="number"
+        className={`${styles.cellInput} ${isOverride ? styles.overridden : ''}`}
+        value={Math.round(value)}
+        onChange={(e) => handleCellEdit(field, t, e.target.value)}
+        title={isOverride ? "Dato editado a mano. Borrar para volver a la matemática predictiva." : ""}
+      />
+    );
+  };
 
   const fCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
@@ -105,21 +172,20 @@ export default function FinancialEngine() {
     <div className={`${styles.container} animate-fade-in`}>
       <div className={styles.header}>
         <div>
-          <h2 className={styles.title}>Modelado Financiero FP&A</h2>
-          <p style={{ color: 'var(--secondary-foreground)' }}>Evalúa la viabilidad y rentabilidad (VAN, TIR) de tu proyecto empresarial a largo plazo.</p>
+          <h2 className={styles.title}>Modelado Financiero FP&A (Spreadsheet)</h2>
+          <p style={{ color: 'var(--secondary-foreground)' }}>Puedes escribir directamente sobre la cuadrícula (ej. modificar capex o costos locales de un mes específico).</p>
         </div>
       </div>
 
       <div className={styles.panels}>
-        {/* SIDEBAR CON INPUTS */}
         <div className={styles.sidebar}>
-          <div className={styles.sectionTitle}><Briefcase size={16} /> Arquitectura del Negocio</div>
+          <div className={styles.sectionTitle}><Briefcase size={16} /> Arquitectura Base</div>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Tesis/Modelo Base</label>
+            <label className={styles.label}>Modelo Predictivo</label>
             <select className={styles.select} value={modelType} onChange={e => applyPreset(e.target.value)}>
-              <option value="masivo">Consumo Masivo (Rotación)</option>
-              <option value="boutique">Servicios/Boutique (Alto Margen)</option>
-              <option value="servicios">SaaS / Venta de Horas (Sin COGS)</option>
+              <option value="masivo">Consumo Masivo</option>
+              <option value="boutique">Boutique / Premium</option>
+              <option value="servicios">Servicios (SaaS/Horas)</option>
             </select>
           </div>
 
@@ -132,39 +198,6 @@ export default function FinancialEngine() {
           </div>
           
           <div className={styles.formGroup}>
-            <label className={styles.label}>Margen Bruto (%)</label>
-            <div className={styles.numberWithSuffix}>
-              <input type="number" value={inputs.margenBrutoOriginal} onChange={e => handleInputChange('margenBrutoOriginal', e.target.value)} />
-              <span className={styles.suffix}>%</span>
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Costos de Estructura Fijos (Mensuales)</label>
-            <div className={styles.numberWithSuffix}>
-              <span className={styles.suffix}>$</span>
-              <input type="number" value={inputs.costosEstructuraMensual} onChange={e => handleInputChange('costosEstructuraMensual', e.target.value)} />
-            </div>
-          </div>
-
-          <div className={styles.sectionTitle} style={{marginTop:'1rem'}}><Activity size={16} /> Escenario Macro & Inversión</div>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Inversión / CapEx Inicial (Año 0)</label>
-            <div className={styles.numberWithSuffix}>
-              <span className={styles.suffix}>$</span>
-              <input type="number" value={inputs.inversionInicial} onChange={e => handleInputChange('inversionInicial', e.target.value)} />
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Crecimiento Anual Esperado de Ventas</label>
-            <div className={styles.numberWithSuffix}>
-              <input type="number" value={inputs.crecimientoAnualVentas} onChange={e => handleInputChange('crecimientoAnualVentas', e.target.value)} />
-              <span className={styles.suffix}>%</span>
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
             <label className={styles.label}>Tasa de Descuento (WACC)</label>
             <div className={styles.numberWithSuffix}>
               <input type="number" value={inputs.tasaDescuento} onChange={e => handleInputChange('tasaDescuento', e.target.value)} />
@@ -175,16 +208,16 @@ export default function FinancialEngine() {
           <div className={styles.formGroup}>
             <label className={styles.label}>Horizonte Años</label>
             <select className={styles.select} value={horizon} onChange={e => setHorizon(parseInt(e.target.value))}>
-              <option value={3}>3 Años</option>
-              <option value={5}>5 Años</option>
-              <option value={10}>10 Años</option>
-              <option value={20}>20 Años</option>
+              <option value={1}>1 Año (Vista 12 Meses)</option>
+              <option value={3}>3 Años (Vista 36 Meses)</option>
+              <option value={5}>5 Años (Vista 60 Meses)</option>
+              <option value={10}>10 Años (Agrupado Anual)</option>
+              <option value={20}>20 Años (Agrupado Anual)</option>
             </select>
+            <span style={{fontSize:'0.7rem', color:'var(--success)', marginTop:'3px'}}>* {isMonthly ? 'Desglose Mensual' : 'Desglose Anual automático'}</span>
           </div>
-
         </div>
 
-        {/* MAIN METRICS & CHARTS */}
         <div className={styles.mainContent}>
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
@@ -194,7 +227,7 @@ export default function FinancialEngine() {
               </span>
             </div>
             <div className={styles.kpiCard}>
-              <span className={styles.kpiTitle}>TIR (Internal Rate of Return)</span>
+              <span className={styles.kpiTitle}>TIR Anualizada (IRR)</span>
               <span className={`${styles.kpiValue} ${eMetrics.tir >= inputs.tasaDescuento ? styles.positive : styles.negative}`}>
                 {eMetrics.tir ? eMetrics.tir.toFixed(2) : '-'} %
               </span>
@@ -207,58 +240,59 @@ export default function FinancialEngine() {
             </div>
           </div>
 
-          {/* Gráfico */}
-          <div className={styles.chartCard} style={{ height: '350px' }}>
-             <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Evolución del Flujo de Caja Libre</h3>
+          {/* Master Chart */}
+          <div className={styles.chartCard} style={{ height: '300px' }}>
              <ResponsiveContainer width="100%" height="100%">
-               <ComposedChart data={projData.slice(1)} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+               <ComposedChart data={projData.slice(1)} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                  <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
-                 <XAxis dataKey="año" tickFormatter={v => `Año ${v}`} stroke="var(--secondary-foreground)" />
-                 <YAxis stroke="var(--secondary-foreground)" tickFormatter={(v) => `$${v/1000}k`} />
+                 <XAxis dataKey="label" stroke="var(--secondary-foreground)" fontSize={12} />
+                 <YAxis stroke="var(--secondary-foreground)" tickFormatter={(v) => `$${v/1000}k`} fontSize={12} width={60} />
                  <Tooltip formatter={fCurrency} contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)' }} />
                  <Legend />
-                 <Bar dataKey="FlujoCajaLibre" fill="var(--primary)" name="Flujo Libre (FCF)" radius={[4, 4, 0, 0]} />
+                 <Bar dataKey="FlujoCajaLibre" fill="var(--primary)" name="Flujo Libre Re-Cálculo" radius={[2, 2, 0, 0]} />
+                 <Line type="monotone" dataKey="CostosEstructura" stroke="#ef4444" name="Costos Fijos" strokeWidth={2} dot={false} />
                </ComposedChart>
              </ResponsiveContainer>
           </div>
-
-          {/* Cascading P&L Table */}
+          
+          {/* Scrollable Editable Data Grid */}
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Concepto P&L</th>
-                  {projData.map(d => <th key={d.año}>Año {d.año}</th>)}
+                  <th>Concepto Modificable</th>
+                  {projData.map(d => <th key={d.periodoNumber}>{d.label}</th>)}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>(+) Ventas / Ingresos</td>
-                  {projData.map(d => <td key={d.año}>{d.año === 0 ? '-' : fCurrency(d.Ingresos)}</td>)}
+                  <td>(+) Ventas / Ingresos Brutos</td>
+                  {projData.map(d => <td key={d.periodoNumber}>{d.periodoNumber === 0 ? '-' : <EditableCell field="Ingresos" d={d} />}</td>)}
                 </tr>
                 <tr>
-                  <td>(-) Costos Directos (COGS)</td>
-                  {projData.map(d => <td key={d.año} style={{ color: 'var(--danger)' }}>{d.año === 0 ? '-' : fCurrency(d.CostosDirectos)}</td>)}
+                  <td>(-) Costos Operativos (COGS)</td>
+                  {projData.map(d => <td key={d.periodoNumber}>{d.periodoNumber === 0 ? '-' : <EditableCell field="CostosDirectos" d={d} />}</td>)}
                 </tr>
                 <tr className={styles.rowNet}>
-                  <td>(=) MARGEN BRUTO</td>
-                  {projData.map(d => <td key={d.año}>{d.año === 0 ? '-' : fCurrency(d.MargenBruto)}</td>)}
+                  <td>(=) MARGEN BRUTO (Auto)</td>
+                  {projData.map(d => <td key={d.periodoNumber}>{d.periodoNumber === 0 ? '-' : fCurrency(d.MargenBruto)}</td>)}
                 </tr>
                 <tr>
-                  <td>(-) Costos de Estructura Fija</td>
-                  {projData.map(d => <td key={d.año} style={{ color: 'var(--danger)' }}>{d.año === 0 ? '-' : fCurrency(d.CostosEstructura)}</td>)}
+                  <td>(-) Egresos Estructura Fija</td>
+                  {projData.map(d => <td key={d.periodoNumber}>{d.periodoNumber === 0 ? '-' : <EditableCell field="CostosEstructura" d={d} />}</td>)}
                 </tr>
                 <tr>
-                  <td>(-) Inversión (CapEx)</td>
-                  {projData.map(d => <td key={d.año} style={{ color: 'var(--danger)' }}>{d.Capex !== 0 ? fCurrency(d.Capex) : '-'}</td>)}
+                  <td>(-) Inversiones / CapEx</td>
+                  {projData.map(d => <td key={d.periodoNumber}><EditableCell field="Capex" d={d} /></td>)}
                 </tr>
                 <tr className={styles.rowNet} style={{ background: 'var(--primary)', color: 'white' }}>
                   <td style={{ background: 'var(--primary)', color: 'white' }}>FLUJO DE CAJA LIBRE</td>
-                  {projData.map(d => <td key={d.año}>{fCurrency(d.FlujoCajaLibre)}</td>)}
+                  {projData.map(d => <td key={d.periodoNumber} style={{ textAlign: 'right' }}>{fCurrency(d.FlujoCajaLibre)}</td>)}
                 </tr>
               </tbody>
             </table>
           </div>
+
         </div>
       </div>
     </div>
