@@ -178,3 +178,60 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+
+/* Responsive Bottom Navigation for Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100vw;
+    height: 65px;
+    top: auto;
+    bottom: 0;
+    flex-direction: row;
+    padding: 0;
+    justify-content: space-around;
+    align-items: center;
+    border-right: none;
+    border-top: 1px solid var(--card-border);
+    z-index: 100;
+  }
+  .sidebar:hover {
+    width: 100vw;
+    padding: 0;
+    background-color: var(--background);
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .logoContainer, .footer, .logoText, .userInfo {
+    display: none !important;
+  }
+  .nav {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    gap: 0;
+  }
+  .navItem {
+    justify-content: center;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: 1rem 0;
+    flex: 1;
+    margin: 0;
+  }
+  .sidebar:hover .navItem {
+    padding: 1rem 0;
+  }
+  .navItemActive {
+    border-left: none;
+    border-bottom: 2px solid var(--primary);
+  }
+  .navItem:hover {
+    border-left: none;
+    border-bottom: 2px solid var(--primary);
+  }
+  .navItem span {
+    display: none !important;
+  }
+}

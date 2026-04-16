@@ -360,3 +360,37 @@
   font-weight: 700;
   background-color: rgba(245, 158, 11, 0.05); /* Slight gold tint */
 }
+
+/* Mobile Responsive Engine Layout */
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.6rem;
+  }
+  .topPanel {
+    padding: 1.25rem 1rem;
+  }
+  .formGroupGrid, 
+  .formGroupGrid3, 
+  .dashboardTop {
+    grid-template-columns: 1fr;
+  }
+  .kpiColumn {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .kpiCard {
+    min-width: 200px;
+    padding: 1rem;
+  }
+  .kpiValue {
+    font-size: 1.5rem;
+  }
+  .chartCard {
+    height: 250px !important;
+  }
+  .uxBanner {
+    flex-direction: column;
+    padding: 1rem;
+  }
+}
