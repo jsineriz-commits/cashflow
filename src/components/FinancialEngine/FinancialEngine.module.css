@@ -22,6 +22,8 @@
   align-items: flex-start;
   position: relative;
   min-height: 800px;
+  width: 100%;
+  max-width: 100%; /* Stop expanding externally */
 }
 
 /* Sidebar Hoverable */
@@ -145,8 +147,8 @@
 
 /* Main Content taking 100% space but avoiding Handle */
 .mainContent {
-  width: 100%;
-  padding-left: 60px; /* Space for the collapsed handle */
+  margin-left: 60px; /* Instead of padding, force margin */
+  width: calc(100vw - 190px); /* 100vw minus MainSidebar(80) and FPASidebarHandle(60) and padding(~50) */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -198,7 +200,6 @@
   position: relative;
   overflow: hidden;
 }
-/* Glassmorphism tooltip hook via global css classes if needed */
 
 /* Spreadsheet Table */
 .tableContainer {
@@ -233,7 +234,20 @@
   left: 0;
   background-color: var(--secondary);
   z-index: 10;
-  min-width: 200px;
+  min-width: 230px;
+}
+
+/* NEW: Expandable Headers UI */
+.thExpandable {
+  cursor: pointer;
+  background-color: rgba(99, 102, 241, 0.1) !important;
+  transition: background-color 0.2s;
+  color: var(--primary) !important;
+  font-weight: bold !important;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+.thExpandable:hover {
+  background-color: rgba(99, 102, 241, 0.2) !important;
 }
 
 .table td {
@@ -264,7 +278,6 @@
   background-color: var(--secondary);
 }
 
-/* Spreadsheet Input Styles */
 .cellInput {
   width: 100%;
   padding: 0.4rem;
@@ -287,4 +300,5 @@
 .cellInput.overridden {
   color: var(--warning, #eab308); /* Yellow-ish tint for custom edits */
   font-weight: bold;
+  background-color: rgba(234, 179, 8, 0.05);
 }
