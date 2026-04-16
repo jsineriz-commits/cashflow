@@ -1,9 +1,9 @@
-import CashflowEngine from '@/components/CashflowEngine/CashflowEngine';
+import FinancialEngine from '@/components/FinancialEngine/FinancialEngine';
 
 export const metadata = {
-  title: 'Proyecciones y Flujos | Cashflow PYMES',
+  title: 'Modelado Financiero y FP&A | Cashflow PYMES',
 };
 
 export default function ProyeccionesPage() {
-  return <CashflowEngine />;
+  return <FinancialEngine />;
 }

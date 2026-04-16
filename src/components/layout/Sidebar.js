@@ -13,11 +13,9 @@ import styles from './Sidebar.module.css';
 
 const menuItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/productos', icon: Package, label: 'Catálogo y Precios' },
+  { href: '/productos', icon: Package, label: 'Catálogo de Precios' },
   { href: '/costos', icon: Receipt, label: 'Costos y Egresos' },
-  { href: '/historico', icon: TrendingUp, label: 'Datos Históricos' },
-  { href: '/simulador', icon: TrendingUp, label: 'Simulador (Corto Plazo)' },
-  { href: '/proyecciones', icon: LineChart, label: 'Proyecciones (Largo Plazo)' },
+  { href: '/proyecciones', icon: LineChart, label: 'Modelado Financiero (FP&A)' },
 ];
 
 export default function Sidebar() {
