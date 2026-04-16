@@ -238,7 +238,7 @@ export default function CashflowEngine() {
 
           <div className={styles.chartCard} style={{ flex: 1 }}>
             <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)' }}>Evolución del Flujo Descontado</h3>
-            <div className={styles.chartContainer} style={{ minHeight: '400px' }}>
+            <div className={styles.chartContainer}>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={activeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />

@@ -43,6 +43,10 @@ export function CashflowProvider({ children }) {
   const removeProduct = (id) => {
     setProducts(prev => prev.filter(p => p.id !== id));
   };
+
+  const updateProduct = (id, updatedData) => {
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedData } : p));
+  };
   
   const addCost = (cost) => {
     setCosts(prev => [...prev, { ...cost, id: Date.now().toString() }]);
@@ -61,7 +65,7 @@ export function CashflowProvider({ children }) {
   };
 
   const value = {
-    products, addProduct, removeProduct,
+    products, addProduct, removeProduct, updateProduct,
     costs, addCost, removeCost,
     simulations, setSimulations,
     historicalSales, addHistorical, removeHistorical,

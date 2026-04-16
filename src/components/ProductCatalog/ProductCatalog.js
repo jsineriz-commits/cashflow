@@ -1,27 +1,48 @@
 'use client';
 import { useState } from 'react';
 import { useCashflow } from '@/context/CashflowContext';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X, Pencil, Package } from 'lucide-react';
 import styles from './ProductCatalog.module.css';
 
+const emptyForm = { name: '', price: '', cost: '', frequency: 'monthly' };
+
 export default function ProductCatalog() {
-  const { products, addProduct, removeProduct } = useCashflow();
+  const { products, addProduct, removeProduct, updateProduct } = useCashflow();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', price: '', cost: '', frequency: 'monthly' });
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
 
   const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
+
+  const openNewModal = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product) => {
+    setEditingId(product.id);
+    setFormData({ name: product.name, price: product.price, cost: product.cost, frequency: product.frequency });
+    setIsModalOpen(true);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.price) return;
-    
-    addProduct({
+
+    const data = {
       name: formData.name,
       price: parseFloat(formData.price),
       cost: parseFloat(formData.cost) || 0,
       frequency: formData.frequency
-    });
-    setFormData({ name: '', price: '', cost: '', frequency: 'monthly' });
+    };
+
+    if (editingId) {
+      updateProduct(editingId, data);
+    } else {
+      addProduct(data);
+    }
+    setFormData(emptyForm);
     setIsModalOpen(false);
   };
 
@@ -34,7 +55,7 @@ export default function ProductCatalog() {
             Gestiona los productos base sobre los que realizarás tus proyecciones.
           </p>
         </div>
-        <button className={styles.addButton} onClick={() => setIsModalOpen(true)}>
+        <button className={styles.addButton} onClick={openNewModal}>
           <Plus size={18} /> Nuevo Producto
         </button>
       </div>
@@ -53,8 +74,15 @@ export default function ProductCatalog() {
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan="5" className={styles.td} style={{ textAlign: 'center', padding: '2rem' }}>
-                  No hay productos cargados todavía.
+                <td colSpan="5">
+                  <div className={styles.emptyState}>
+                    <Package size={40} className={styles.emptyIcon} />
+                    <p className={styles.emptyTitle}>Todavía no tenés productos cargados</p>
+                    <p className={styles.emptySubtitle}>Agregá tu primer producto o servicio para empezar a proyectar tu cashflow.</p>
+                    <button className={styles.addButton} onClick={openNewModal}>
+                      <Plus size={16} /> Agregar primer producto
+                    </button>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -71,9 +99,14 @@ export default function ProductCatalog() {
                     {formatCurrency(product.cost)}
                   </td>
                   <td className={styles.td}>
-                    <button className={styles.deleteButton} onClick={() => removeProduct(product.id)}>
-                      <Trash2 size={18} />
-                    </button>
+                    <div className={styles.actionButtons}>
+                      <button className={styles.editButton} onClick={() => openEditModal(product)} title="Editar producto">
+                        <Pencil size={16} />
+                      </button>
+                      <button className={styles.deleteButton} onClick={() => removeProduct(product.id)} title="Eliminar producto">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -86,7 +119,7 @@ export default function ProductCatalog() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Agregar Nuevo Producto</h3>
+              <h3 className={styles.modalTitle}>{editingId ? 'Editar Producto' : 'Agregar Nuevo Producto'}</h3>
               <button className={styles.closeButton} onClick={() => setIsModalOpen(false)}>
                 <X size={24} />
               </button>
@@ -148,7 +181,7 @@ export default function ProductCatalog() {
               </div>
 
               <button type="submit" className={styles.submitButton}>
-                Guardar Producto
+                {editingId ? 'Guardar Cambios' : 'Guardar Producto'}
               </button>
             </form>
           </div>

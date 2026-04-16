@@ -20,12 +20,16 @@ export default function Topbar() {
       <h1 className={styles.title}>{title}</h1>
       
       <div className={styles.actions}>
-        <button className={styles.iconButton} aria-label="Buscar">
-          <Search size={20} />
-        </button>
-        <button className={styles.iconButton} aria-label="Notificaciones">
-          <Bell size={20} />
-        </button>
+        <div className={styles.tooltip} data-tip="Búsqueda — Próximamente">
+          <button className={styles.iconButton} aria-label="Buscar" disabled>
+            <Search size={20} />
+          </button>
+        </div>
+        <div className={styles.tooltip} data-tip="Notificaciones — Próximamente">
+          <button className={styles.iconButton} aria-label="Notificaciones" disabled>
+            <Bell size={20} />
+          </button>
+        </div>
       </div>
     </header>
   );
